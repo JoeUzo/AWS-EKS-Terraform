@@ -7,3 +7,8 @@ variable "private_subnets" {
   description = "list of subnet ids"
   type = list(string)
 }
+
+variable "cluster_name" {
+    description = "cluster name"
+    type = string
+}

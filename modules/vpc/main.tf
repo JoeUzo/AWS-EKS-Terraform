@@ -11,15 +11,11 @@ module "vpc" {
 
   enable_nat_gateway = var.vpc_enable_nat_gateway
   single_nat_gateway = var.vpc_single_nat_gateway
+   enable_dns_hostnames = var.vpc_enable_dns_hostnames
 
   tags = local.common_tags
 
-  public_subnet_tags = {
-    Type = "Public Subnets"
-  }
-  private_subnet_tags = {
-    Type = "Private Subnets"
-  }
-
+  public_subnet_tags = var.vpc_public_subnets_tags
+  private_subnet_tags = var.vpc_private_subnets_tags
 
 }
