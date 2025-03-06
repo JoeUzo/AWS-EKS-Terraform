@@ -11,4 +11,11 @@ variable "private_subnets" {
 variable "cluster_name" {
     description = "cluster name"
     type = string
+    default = "default-name"
+}
+
+variable "node_groups_instance_types" {
+  description = "instance types for node groups"
+  type = list(string)
+  default = ["m5.xlarge", "m5.large", "t3.medium"]
 }
