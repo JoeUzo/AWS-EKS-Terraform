@@ -1,6 +1,6 @@
 variable "my_region" {
   description = "aws region"
-  type = string
+  type        = string
 }
 
 
@@ -51,12 +51,12 @@ variable "vpc_enable_dns_hostnames" {
 
 variable "vpc_public_subnets_tags" {
   description = "tags for public subnet"
-  type = map(any)
+  type        = map(any)
 }
 
 variable "vpc_private_subnets_tags" {
   description = "tags for public subnet"
-  type = map(any)
+  type        = map(any)
 }
 
 #########################################
@@ -64,4 +64,12 @@ variable "vpc_private_subnets_tags" {
 #########################################
 variable "rolearn" {
   type = string
+}
+
+variable "eks_cluster_name" {
+  type = string
+}
+
+variable "node_groups_instance_types" {
+  type = list(string)
 }
