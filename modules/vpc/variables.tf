@@ -1,7 +1,7 @@
-variable "my_region" {
-  description = "aws region"
-  type    = string
-}
+# variable "vpc_region" {
+#   description = "aws region"
+#   type    = string
+# }
 
 
 ##################################################

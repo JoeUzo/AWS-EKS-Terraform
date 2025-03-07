@@ -19,3 +19,8 @@ variable "node_groups_instance_types" {
   type = list(string)
   default = ["m5.xlarge", "m5.large", "t3.medium"]
 }
+
+variable "rolearn" {
+  description = "role arn to be used for eks cluster"
+  type = string
+}

@@ -13,9 +13,7 @@ module "vpc" {
   single_nat_gateway = var.vpc_single_nat_gateway
   enable_dns_hostnames = var.vpc_enable_dns_hostnames
   
-  tags = {
-    Name = "vpc-does-work"
-  }
+  tags = local.common_tags
 
   public_subnet_tags = var.vpc_public_subnets_tags
   private_subnet_tags = var.vpc_private_subnets_tags
