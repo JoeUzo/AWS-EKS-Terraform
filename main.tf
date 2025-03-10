@@ -23,3 +23,4 @@ module "eks_module" {
   node_groups_instance_types = var.node_groups_instance_types
   rolearn                    = var.rolearn
 }
+
