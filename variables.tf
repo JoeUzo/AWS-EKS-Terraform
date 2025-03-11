@@ -73,3 +73,17 @@ variable "eks_cluster_name" {
 variable "node_groups_instance_types" {
   type = list(string)
 }
+
+#########################################
+# ADD-ONS MODULE VARIABLES
+#########################################
+variable "grafana_password" {
+  description = "The password for the Grafana user."
+  type        = string
+}
+
+variable "domain" {
+  description = "The domain name of the EKS cluster."
+  type        = string
+}
+

@@ -67,7 +67,7 @@ Below is an example of a generic `terraform.tfvars` file. Update these settings 
 
 ```hcl
 # Region where the resources will be created
-my_region = "us-east-2"
+my_region = "us-east-1"
 
 # VPC Configuration
 vpc_owner              = "ExampleOwner"

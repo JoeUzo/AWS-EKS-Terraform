@@ -24,3 +24,23 @@ module "eks_module" {
   rolearn                    = var.rolearn
 }
 
+module "add_ons_module" {
+  source           = "./modules/add-ons"
+  cluster_name     = var.eks_cluster_name
+  grafana_password = var.grafana_password
+  domain           = var.domain
+  cluster_ca       = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
+  cluster_token    = data.aws_eks_cluster_auth.cluster_auth.token
+  cluster_endpoint = data.aws_eks_cluster.cluster.endpoint  
+}
+
+
+data "aws_eks_cluster" "cluster" {
+    name = var.eks_cluster_name
+    depends_on = [ module.eks_module ]
+}
+
+data "aws_eks_cluster_auth" "cluster_auth" {
+    name = var.eks_cluster_name
+    depends_on = [ module.eks_module ]
+}
