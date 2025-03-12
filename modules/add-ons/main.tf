@@ -56,16 +56,36 @@ resource "helm_release" "nginx_ingress" {
   chart = "ingress-nginx"
   version = "4.12.0"
   timeout = 600
+
+  set {
+    name  = "controller.admissionWebhooks.enabled"
+    value = "false"
+  }
 }
 
 resource "helm_release" "prometheus" {
-  name = "prometheus"
-  namespace = kubernetes_namespace.monitoring.metadata[0].name
+  name       = "prometheus"
+  namespace  = kubernetes_namespace.monitoring.metadata[0].name
   repository = "https://prometheus-community.github.io/helm-charts"
-  chart = "prometheus"
-  version = "27.5.1"
-  timeout = 600
+  chart      = "prometheus"
+  version    = "27.5.1"
+
+  set {
+    name  = "server.persistence.enabled"
+    value = "true"
+  }
+
+  set {
+    name  = "server.persistence.storageClass"
+    value = "gp2"  # Use your default StorageClass name here
+  }
+
+  set {
+    name  = "server.persistence.size"
+    value = "20Gi"  # Adjust as needed for your requirements
+  }
 }
+
 
 resource "helm_release" "grafana" {
   name = "grafana"
@@ -81,31 +101,59 @@ resource "helm_release" "grafana" {
   }
 }
 
-resource "kubernetes_ingress" "grafana" {
+# resource "kubernetes_ingress" "grafana" {
+#   metadata {
+#     name = "grafana-ingress"
+#     namespace = kubernetes_namespace.monitoring.metadata[0].name
+#     annotations = {
+#       "kubernetes.io/ingress.class" = "nginx"
+#       "nginx.ingress.kubernetes.io/rewrite-target" = "/"
+#     }
+#   }
+#   spec {
+#     rule {
+#       host = "grafana.${var.domain}"
+#       http {
+#         path {
+#           path = "/"
+#           backend {
+#             service_name = helm_release.grafana.name
+#             service_port = 80
+#           }
+#         }
+#       }
+#     }
+#   }
+# }
+
+
+resource "kubernetes_ingress_v1" "grafana" {
   metadata {
-    name = "grafana-ingress"
+    name      = "grafana-ingress"
     namespace = kubernetes_namespace.monitoring.metadata[0].name
     annotations = {
-      "kubernetes.io/ingress.class" = "nginx"
+      "kubernetes.io/ingress.class"                = "nginx"
       "nginx.ingress.kubernetes.io/rewrite-target" = "/"
     }
   }
+
   spec {
     rule {
       host = "grafana.${var.domain}"
       http {
         path {
-          path = "/"
+          path      = "/"
+          path_type = "Prefix"
           backend {
-            service_name = helm_release.grafana.name
-            service_port = 80
+            service {
+              name = helm_release.grafana.name
+              port {
+                number = 80
+              }
+            }
           }
         }
       }
     }
   }
 }
-
-
-
-
