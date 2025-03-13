@@ -125,7 +125,7 @@ resource "helm_release" "grafana" {
 #     }
 #   }
 # }
-
+#
 
 resource "kubernetes_ingress_v1" "grafana" {
   metadata {
