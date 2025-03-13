@@ -70,22 +70,22 @@ resource "helm_release" "prometheus" {
   chart      = "prometheus"
   version    = "27.5.1"
 
+  # set {
+  # name  = "server.persistence.storageClassName"
+  # value = "gp2"
+  # }
+
+
   set {
-    name  = "server.persistence.enabled"
+    name  = "server.persistentVolume.enabled"
     value = "true"
-  }
+ }
 
   set {
-    name  = "server.persistence.storageClass"
-    value = "gp2"  # Use your default StorageClass name here
-  }
-
-  set {
-    name  = "server.persistence.size"
-    value = "20Gi"  # Adjust as needed for your requirements
+    name  = "server.persistentVolume.storageClass"
+    value = "gp2"
   }
 }
-
 
 resource "helm_release" "grafana" {
   name = "grafana"
@@ -113,7 +113,7 @@ resource "helm_release" "grafana" {
 #   spec {
 #     rule {
 #       host = "grafana.${var.domain}"
-#       http {
+#       http {`
 #         path {
 #           path = "/"
 #           backend {
