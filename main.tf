@@ -32,6 +32,8 @@ module "add_ons_module" {
   cluster_ca       = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
   cluster_token    = data.aws_eks_cluster_auth.cluster.token
   cluster_endpoint = data.aws_eks_cluster.cluster.endpoint
+  grafana_username = var.grafana_username
+  eks_cluster_name = var.eks_cluster_name
 }
 
 

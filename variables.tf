@@ -86,4 +86,8 @@ variable "domain" {
   description = "The domain name of the EKS cluster."
   type        = string
 }
+variable "grafana_username" {
+  description = "The username for the Grafana user."
+  type        = string
+}
 

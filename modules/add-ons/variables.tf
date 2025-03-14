@@ -28,3 +28,13 @@ variable "cluster_endpoint" {
     type = string
 }
 
+variable "grafana_username" {
+    description = "The username for the Grafana user."
+    type = string
+    default = "admin"
+}
+
+variable "eks_cluster_name" {
+    description = "The name of the EKS cluster."
+    type = string
+}
