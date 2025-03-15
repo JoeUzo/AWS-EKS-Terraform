@@ -11,6 +11,12 @@ resource "kubernetes_namespace" "ingress" {
   }
 }
 
+resource "kubernetes_namespace" "app" {
+  metadata {
+    name = "app"
+  }
+}
+
 # Prometheus
 resource "helm_release" "prometheus" {
   name       = "prometheus"
@@ -23,12 +29,7 @@ resource "helm_release" "prometheus" {
     name  = "server.persistentVolume.storageClass"
     value = "gp2"
   }
-
-  # set {
-  #   name  = "alertmanager.persistence.enabled"
-  #   value = "true"
-  # }
-
+  
   set {
     name  = "alertmanager.persistence.storageClass"
     value = "gp2"
@@ -56,24 +57,34 @@ resource "helm_release" "grafana" {
 
 # Ingress for nginx
 resource "helm_release" "nginx_ingress" {
-  name = "nginx-ingress"
-  namespace = kubernetes_namespace.ingress.metadata[0].name
+  name       = "nginx-ingress"
+  namespace  = kubernetes_namespace.ingress.metadata[0].name
   repository = "https://kubernetes.github.io/ingress-nginx"
-  chart = "ingress-nginx"
-  version = "4.12.0"
+  chart      = "ingress-nginx"
+  version    = "4.12.0"
+
+  set {
+    name  = "controller.service.annotations.service\\.beta\\.kubernetes\\.io/aws-load-balancer-type"
+    value = "nlb"
+  }
   
+  set {
+    name  = "controller.service.annotations.service\\.beta\\.kubernetes\\.io/aws-load-balancer-scheme"
+    value = "internet-facing"
+  }
   
   set {
     name  = "controller.admissionWebhooks.enabled"
     value = "false"
   }
 
+  # Add tags to the AWS Load Balancer
   set {
-    name  = "controller.fullnameOverride"
-    value = "nginx-ingress"
+    name  = "controller.service.annotations.service\\.beta\\.kubernetes\\.io/aws-load-balancer-additional-resource-tags"
+    value = local.lb_additional_tags_string
   }
-
 }
+
 
 # Ingress for grafana
 resource "kubernetes_ingress_v1" "grafana" {
@@ -109,29 +120,24 @@ resource "kubernetes_ingress_v1" "grafana" {
 
 
 # Route53 for grafana
-# data "aws_route53_zone" "existing" {
-#   name = var.domain
-# }
+data "aws_route53_zone" "existing" {
+  name = var.domain
+}
 
-# data "aws_lb" "nginx_ingress" {
-#   tags = {
-#     "kubernetes.io/cluster/${var.eks_cluster_name}" = "owned"
-#     "kubernetes.io/service-name" = "ingress/nginx-ingress-ingress-nginx-controller"
-#   }
-#   depends_on = [ helm_release.nginx_ingress ]
-# }
+data "aws_lb" "nginx_ingress" {
+  tags = var.lb_additional_tags
+  depends_on = [ helm_release.nginx_ingress ]
+}
 
+resource "aws_route53_record" "grafana" {
+  zone_id = data.aws_route53_zone.existing.zone_id
+  name    = "grafana.${var.domain}"
+  type    = "A"
 
-
-# resource "aws_route53_record" "grafana" {
-#   zone_id = data.aws_route53_zone.existing.zone_id
-#   name    = "grafana.${var.domain}"
-#   type    = "A"
-
-#   alias {
-#     name                   = data.aws_lb.nginx_ingress.dns_name
-#     zone_id                = data.aws_lb.nginx_ingress.zone_id
-#     evaluate_target_health = true
-#   }
-# }
+  alias {
+    name                   = data.aws_lb.nginx_ingress.dns_name
+    zone_id                = data.aws_lb.nginx_ingress.zone_id
+    evaluate_target_health = true
+  }
+}
 
