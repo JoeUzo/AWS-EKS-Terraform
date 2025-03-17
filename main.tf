@@ -25,26 +25,27 @@ module "eks_module" {
 }
 
 module "efs_module" {
-  source = "./modules/efs"
-  aws_region = var.my_region
-  cluster_name = var.eks_cluster_name
-  vpc_id = module.vpc_module.vpc_id
+  source          = "./modules/efs"
+  aws_region      = var.my_region
+  cluster_name    = var.eks_cluster_name
+  vpc_id          = module.vpc_module.vpc_id
   private_subnets = module.vpc_module.private_subnets
-  vpc_cidr_block = var.vpc_cidr
+  vpc_cidr_block  = var.vpc_cidr
+  oidc_provider   = module.eks_module.oidc_provider
 }
 
 module "add_ons_module" {
-  source           = "./modules/add-ons"
-  cluster_name     = var.eks_cluster_name
-  grafana_password = var.grafana_password
-  domain           = var.domain
-  cluster_ca       = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
-  cluster_token    = data.aws_eks_cluster_auth.cluster.token
-  cluster_endpoint = data.aws_eks_cluster.cluster.endpoint
-  grafana_username = var.grafana_username
-  eks_cluster_name = var.eks_cluster_name
+  source               = "./modules/add-ons"
+  cluster_name         = var.eks_cluster_name
+  grafana_password     = var.grafana_password
+  domain               = var.domain
+  cluster_ca           = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
+  cluster_token        = data.aws_eks_cluster_auth.cluster.token
+  cluster_endpoint     = data.aws_eks_cluster.cluster.endpoint
+  grafana_username     = var.grafana_username
+  eks_cluster_name     = var.eks_cluster_name
   create_app_ingresses = true
-  ingress_map = var.app_ingress
+  ingress_map          = var.app_ingress
 }
 
 

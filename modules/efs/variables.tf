@@ -23,5 +23,10 @@ variable "private_subnets" {
   type        = list(string)
 }
 
+variable "oidc_provider" {
+  description = "The OIDC provider"
+  type        = string
+}
+
 
 

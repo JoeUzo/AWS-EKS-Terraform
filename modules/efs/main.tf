@@ -1,5 +1,5 @@
 data "aws_iam_policy" "efs_csi_policy" {
-  arn = "arn:aws:iam::aws:policy/AmazonEFSCSIDriverPolicy"
+  arn = "arn:aws:iam::aws:policy/service-role/AmazonEFSCSIDriverPolicy"
 }
 
 module "irsa-efs-csi" {
@@ -7,8 +7,8 @@ module "irsa-efs-csi" {
   version = "5.39.0"
 
   create_role                   = true
-  role_name                     = "AmazonEKS_EFSCSIDriverRole-${module.eks.cluster_name}"
-  provider_url                  = module.eks.oidc_provider
+  role_name                     = "AmazonEKS_EFSCSIDriverRole-${var.cluster_name}"
+  provider_url                  = var.oidc_provider
   role_policy_arns              = [data.aws_iam_policy.efs_csi_policy.arn]
   oidc_fully_qualified_subjects = ["system:serviceaccount:kube-system:efs-csi-controller-sa"]
 }
@@ -35,13 +35,18 @@ resource "helm_release" "aws_efs_csi_driver" {
 
   # Instruct Helm not to create a service account because we provide our own
   values = [
-    <<EOF
+  <<EOF
+controller:
+  podAnnotations:
+    meta.helm.sh/release-name: "aws-efs-csi-driver"
+    meta.helm.sh/release-namespace: "kube-system"
+    app.kubernetes.io/managed-by: "Helm"
 serviceAccount:
   create: false
   name: efs-csi-controller-sa
 region: "${var.aws_region}"
 EOF
-  ]
+]
 
   depends_on = [kubernetes_service_account.efs_csi_controller]
 }
@@ -82,9 +87,9 @@ resource "aws_efs_file_system" "this" {
 
 # Create mount targets in each private subnet
 resource "aws_efs_mount_target" "this" {
-  for_each       = toset(var.private_subnets)
+  count          = length(var.private_subnets)
   file_system_id = aws_efs_file_system.this.id
-  subnet_id      = each.value
+  subnet_id      = var.private_subnets[count.index]
   security_groups = [
     aws_security_group.efs.id
   ]
