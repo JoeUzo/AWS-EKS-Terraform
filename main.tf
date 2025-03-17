@@ -24,6 +24,15 @@ module "eks_module" {
   rolearn                    = var.rolearn
 }
 
+module "efs_module" {
+  source = "./modules/efs"
+  aws_region = var.my_region
+  cluster_name = var.eks_cluster_name
+  vpc_id = module.vpc_module.vpc_id
+  private_subnets = module.vpc_module.private_subnets
+  vpc_cidr_block = var.vpc_cidr
+}
+
 module "add_ons_module" {
   source           = "./modules/add-ons"
   cluster_name     = var.eks_cluster_name
