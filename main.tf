@@ -34,7 +34,7 @@ module "add_ons_module" {
   cluster_endpoint = data.aws_eks_cluster.cluster.endpoint
   grafana_username = var.grafana_username
   eks_cluster_name = var.eks_cluster_name
-  create_app_ingresses = "true"
+  create_app_ingresses = true
   ingress_map = var.app_ingress
 }
 

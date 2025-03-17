@@ -175,3 +175,17 @@ resource "kubernetes_ingress_v1" "app_ingress" {
     }
   }
 }
+
+
+resource "aws_route53_record" "app_record" {
+  for_each = var.create_app_ingresses ? var.ingress_map : {}
+  zone_id = data.aws_route53_zone.existing.zone_id
+  name    = "${each.key}.${var.domain}"
+  type    = "A"
+
+  alias {
+    name                   = data.aws_lb.nginx_ingress.dns_name
+    zone_id                = data.aws_lb.nginx_ingress.zone_id
+    evaluate_target_health = true
+  }
+}
