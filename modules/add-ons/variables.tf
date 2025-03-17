@@ -52,3 +52,18 @@ locals {
   lb_additional_tags_string = join("\\,", [for k, v in var.lb_additional_tags : "${k}=${v}"])
 }
 
+variable "create_app_ingresses" {
+  description = "Create ingresses if true"
+  type        = bool
+  default     = false
+}
+
+variable "ingress_map" {
+  description = "Map where the key is the host prefix (e.g. \"app\") and the value is a list with two items: [service_name, port_number]."
+  type        = map(list(any))
+#   example     = {
+#     app = ["app-service", 80]
+#   }
+  default = {}
+}
+

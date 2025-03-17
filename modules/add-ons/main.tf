@@ -12,6 +12,7 @@ resource "kubernetes_namespace" "ingress" {
 }
 
 resource "kubernetes_namespace" "app" {
+  count = var.create_app_ingresses ? 1 : 0
   metadata {
     name = "app"
   }
@@ -141,3 +142,36 @@ resource "aws_route53_record" "grafana" {
   }
 }
 
+
+resource "kubernetes_ingress_v1" "app_ingress" {
+  for_each = var.create_app_ingresses ? var.ingress_map : {}
+
+  metadata {
+    name      = "${each.value[0]}-ingress"
+    namespace = kubernetes_namespace.app[0].metadata[0].name
+    annotations = {
+      "kubernetes.io/ingress.class"                = "nginx"
+      "nginx.ingress.kubernetes.io/rewrite-target" = "/"
+    }
+  }
+
+  spec {
+    rule {
+      host = "${each.key}.${var.domain}"
+      http {
+        path {
+          path      = "/"
+          path_type = "Prefix"
+          backend {
+            service {
+              name = each.value[0]
+              port {
+                number = each.value[1]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
