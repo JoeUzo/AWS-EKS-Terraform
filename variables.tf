@@ -91,3 +91,6 @@ variable "grafana_username" {
   type        = string
 }
 
+variable "app_ingress" {
+  type = map(list(any))
+}

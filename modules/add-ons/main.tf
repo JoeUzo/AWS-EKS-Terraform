@@ -160,7 +160,7 @@ resource "kubernetes_ingress_v1" "app_ingress" {
       host = "${each.key}.${var.domain}"
       http {
         path {
-          path      = "/"
+          path      = each.value[2]
           path_type = "Prefix"
           backend {
             service {

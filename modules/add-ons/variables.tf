@@ -59,10 +59,10 @@ variable "create_app_ingresses" {
 }
 
 variable "ingress_map" {
-  description = "Map where the key is the host prefix (e.g. \"app\") and the value is a list with two items: [service_name, port_number]."
+  description = "Map where the key is the host prefix (e.g. \"app\") and the value is a list with two items: [service_name, port_number, path]."
   type        = map(list(any))
 #   example     = {
-#     app = ["app-service", 80]
+#     app = ["app-service", 80, "/"]
 #   }
   default = {}
 }
