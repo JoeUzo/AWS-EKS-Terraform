@@ -13,14 +13,18 @@ module "irsa-efs-csi" {
   oidc_fully_qualified_subjects = ["system:serviceaccount:kube-system:efs-csi-controller-sa"]
 }
 
-
-# Create the service account for the EFS CSI driver
+# Create the service account for the EFS CSI driver with the required annotations/labels
 resource "kubernetes_service_account" "efs_csi_controller" {
   metadata {
     name      = "efs-csi-controller-sa"
     namespace = "kube-system"
     annotations = {
-      "eks.amazonaws.com/role-arn" = module.irsa-efs-csi.iam_role_arn
+      "eks.amazonaws.com/role-arn"    = module.irsa-efs-csi.iam_role_arn
+      "meta.helm.sh/release-name"       = "aws-efs-csi-driver"
+      "meta.helm.sh/release-namespace"    = "kube-system"
+    }
+    labels = {
+      "app.kubernetes.io/managed-by"    = "Helm"
     }
   }
 }
@@ -31,11 +35,11 @@ resource "helm_release" "aws_efs_csi_driver" {
   namespace  = "kube-system"
   repository = "https://kubernetes-sigs.github.io/aws-efs-csi-driver/"
   chart      = "aws-efs-csi-driver"
-  version    = "3.1.7"   # Adjust to a current stable version if needed
+  version    = "3.1.7"
 
-  # Instruct Helm not to create a service account because we provide our own
+  # Pass controller pod annotations and disable service account creation
   values = [
-  <<EOF
+    <<EOF
 controller:
   podAnnotations:
     meta.helm.sh/release-name: "aws-efs-csi-driver"
@@ -46,11 +50,10 @@ serviceAccount:
   name: efs-csi-controller-sa
 region: "${var.aws_region}"
 EOF
-]
+  ]
 
   depends_on = [kubernetes_service_account.efs_csi_controller]
 }
-
 
 # Security Group for EFS (allows NFS traffic)
 resource "aws_security_group" "efs" {
@@ -62,7 +65,7 @@ resource "aws_security_group" "efs" {
     from_port   = 2049
     to_port     = 2049
     protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr_block]  
+    cidr_blocks = [var.vpc_cidr_block]
   }
 
   egress {
@@ -75,8 +78,8 @@ resource "aws_security_group" "efs" {
 
 # Create the EFS file system
 resource "aws_efs_file_system" "this" {
-  creation_token    = "${var.cluster_name}-efs"
-  performance_mode  = "generalPurpose"
+  creation_token   = "${var.cluster_name}-efs"
+  performance_mode = "generalPurpose"
   lifecycle_policy {
     transition_to_ia = "AFTER_14_DAYS"
   }
@@ -87,12 +90,10 @@ resource "aws_efs_file_system" "this" {
 
 # Create mount targets in each private subnet
 resource "aws_efs_mount_target" "this" {
-  count          = length(var.private_subnets)
-  file_system_id = aws_efs_file_system.this.id
-  subnet_id      = var.private_subnets[count.index]
-  security_groups = [
-    aws_security_group.efs.id
-  ]
+  count           = length(var.private_subnets)
+  file_system_id  = aws_efs_file_system.this.id
+  subnet_id       = var.private_subnets[count.index]
+  security_groups = [aws_security_group.efs.id]
 }
 
 # Create an EFS Access Point (used by dynamic provisioning)
@@ -114,7 +115,7 @@ resource "aws_efs_access_point" "this" {
   }
 }
 
-
+# Create a Kubernetes StorageClass for EFS dynamic provisioning
 resource "kubernetes_storage_class" "efs" {
   metadata {
     name = "efs-sc"
