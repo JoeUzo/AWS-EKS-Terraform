@@ -1,0 +1,57 @@
+# AWS Region where all resources will be deployed
+my_region = "us-east-2"
+
+#-----------------------------------------
+# VPC Configuration
+#-----------------------------------------
+vpc_owner                = "Example-Owner"              # Organization or owner name
+vpc_use                  = "production"                 # Purpose of this VPC (e.g., production, staging, dev)
+vpc_cidr                 = "10.0.0.0/16"               # Main CIDR block for the VPC
+vpc_availability_zones   = ["us-east-2a", "us-east-2b", "us-east-2c"] # AZs to use
+vpc_public_subnets       = ["10.0.1.0/24", "10.0.2.0/24"]  # CIDR blocks for public subnets
+vpc_private_subnets      = ["10.0.3.0/24", "10.0.4.0/24"]  # CIDR blocks for private subnets
+vpc_enable_nat_gateway   = true       # Set to true to create NAT Gateway(s) for private subnet internet access
+vpc_single_nat_gateway   = true       # Set to true to use a single NAT Gateway for cost savings (less resilient)
+vpc_enable_dns_hostnames = true       # Required for EKS
+
+# Tags for public subnets
+vpc_public_subnets_tags = {
+  Terraform                = "true"
+  "kubernetes.io/role/elb" = "1"      # Required for EKS to auto-discover external load balancers
+  Type                     = "Public Subnets"
+}
+
+# Tags for private subnets
+vpc_private_subnets_tags = {
+  Type                              = "Private Subnets",
+  "kubernetes.io/role/internal-elb" = 1,      # Required for EKS to auto-discover internal load balancers
+  Terraform                         = "true",
+}
+
+#-----------------------------------------
+# EKS Cluster Configuration
+#-----------------------------------------
+rolearn                    = "arn:aws:iam::123456789012:role/EKS-Admin-Role"  # IAM role ARN for EKS cluster admin
+eks_cluster_name           = "my-eks-cluster"                                 # Name of the EKS cluster
+node_groups_instance_types = ["t3.medium"]                                   # EC2 instance types for worker nodes
+
+#-----------------------------------------
+# Add-ons Configuration
+#-----------------------------------------
+grafana_username = "admin"                   # Grafana admin username
+grafana_password = "StrongP@ssword123!"      # Grafana admin password (use a strong password!)
+domain           = "example.com"             # Public domain name for Ingress resources
+
+# App Ingress Map - define services to expose
+# Format: "subdomain" = ["service-name", port-number, "path"]
+app_ingress = {
+  "app"   = ["app-service", 8080, "/"],
+  "api"   = ["api-service", 3000, "/"],
+  "pdf"   = ["pdf-service", 5000, "/"]
+}
+
+#-----------------------------------------
+# EFS Configuration
+#-----------------------------------------
+# No additional variables needed for EFS as it uses values from the EKS configuration
+# EFS will be created in the same VPC as the EKS cluster and will be accessible from all nodes 
