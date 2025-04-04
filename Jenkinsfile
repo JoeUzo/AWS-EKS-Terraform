@@ -16,7 +16,7 @@ pipeline {
             steps {
                 script {
                     // Retrieve the Terraform variables file from Jenkins credentials
-                    withCredentials([file(credentialsId: 'terraform-tfvars', variable: 'TFVARS_FILE')]) {
+                    withCredentials([file(credentialsId: 'eks-terraform-tfvars', variable: 'TFVARS_FILE')]) {
                         sh 'cp $TFVARS_FILE terraform.tfvars'
                     }
                 }
@@ -28,7 +28,7 @@ pipeline {
                     // Securely retrieve backend configuration details from Jenkins credentials
                     withCredentials([
                         string(credentialsId: 's3-bucket', variable: 'S3_BUCKET'),
-                        string(credentialsId: 'tfstate-key', variable: 'TFSTATE_KEY'),
+                        string(credentialsId: 'eks-tfstate-key', variable: 'TFSTATE_KEY'),
                         string(credentialsId: 'dynamodb-table', variable: 'DYNAMODB_TABLE')
                     ]) {
                         sh """
