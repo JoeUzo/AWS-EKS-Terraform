@@ -31,13 +31,14 @@ pipeline {
                         string(credentialsId: 'eks-tfstate-key', variable: 'TFSTATE_KEY'),
                         string(credentialsId: 'dynamodb-table', variable: 'DYNAMODB_TABLE')
                     ]) {
-                        sh """
+                        // Use triple single quotes to let the shell expand the variables
+                        sh '''
                             terraform init \
-                            -backend-config="bucket=${S3_BUCKET}" \
-                            -backend-config="key=${TFSTATE_KEY}" \
-                            -backend-config="dynamodb_table=${DYNAMODB_TABLE}" \
-                            -backend-config="region=${AWS_REGION}"
-                        """
+                            -backend-config="bucket=$S3_BUCKET" \
+                            -backend-config="key=$TFSTATE_KEY" \
+                            -backend-config="dynamodb_table=$DYNAMODB_TABLE" \
+                            -backend-config="region=$AWS_REGION"
+                        '''
                     }
                 }
             }
