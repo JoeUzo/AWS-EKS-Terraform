@@ -74,6 +74,10 @@ variable "node_groups_instance_types" {
   type = list(string)
 }
 
+variable "desired_size" {
+  type = number
+}
+
 #########################################
 # ADD-ONS MODULE VARIABLES
 #########################################

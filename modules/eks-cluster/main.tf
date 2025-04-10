@@ -40,14 +40,14 @@ module "eks" {
       name = "node-group-1"
       min_size = 1
       max_size = 10
-      desired_size = 2
+      desired_size = var.desired_size
     }
 
     group-02 = {
       name = "node-group-2"
       min_size = 1
       max_size = 10
-      desired_size = 2
+      desired_size = var.desired_size
     }
   }
 

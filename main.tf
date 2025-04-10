@@ -22,6 +22,7 @@ module "eks_module" {
   private_subnets            = module.vpc_module.private_subnets
   node_groups_instance_types = var.node_groups_instance_types
   rolearn                    = var.rolearn
+  desired_size               = var.desired_size
 }
 
 module "efs_module" {

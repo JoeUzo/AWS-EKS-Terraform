@@ -24,3 +24,9 @@ variable "rolearn" {
   description = "role arn to be used for eks cluster"
   type = string
 }
+
+variable "desired_size" {
+  description = "Desired number of nodes in the node group"
+  type = number
+  default = 2
+}
