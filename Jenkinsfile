@@ -8,8 +8,8 @@ pipeline {
         choice(name: 'Deployment_Type', choices: ['apply', 'destroy'], description: 'The deployment type')
     }
     environment {
-        EMAIL_TO   = 'your-email@example.com'  // Non-sensitive email address
-        AWS_REGION = 'us-east-2'               // AWS region, typically not sensitive
+        EMAIL_TO   = 'joeuzoproject@gmail.com'  
+        AWS_REGION = 'us-east-2'               
     }
     stages {
         stage('Setup tfvars') {
