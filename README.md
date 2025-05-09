@@ -211,7 +211,3 @@ Contributions are welcome! Please fork the repository and submit pull requests w
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-For the application repository, please visit: [PDF-gpt--RAG-Application](https://github.com/JoeUzo/PDF-gpt--RAG-Application-)
