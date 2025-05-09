@@ -1,6 +1,6 @@
-# PDF-gpt-infra
+# AWS-EKS-Terraform
 
-**PDF-gpt-infra** is an infrastructure-as-code repository that provisions a complete AWS EKS-based Kubernetes platform for running the PDF GPT application. This infrastructure includes an EKS cluster, VPC networking, persistent storage via EFS, monitoring with Prometheus and Grafana, and ingress controllers for external access.
+**AWS-EKS-Terraform** is an infrastructure-as-code repository that provisions a complete AWS EKS-based Kubernetes platform for running containerized applications. This infrastructure includes an EKS cluster, VPC networking, persistent storage via EFS, monitoring with Prometheus and Grafana, and ingress controllers for external access.
 
 ## Table of Contents
 
@@ -19,7 +19,7 @@
 
 ## Overview
 
-This repository automates the deployment of a production-ready Kubernetes infrastructure on AWS, specifically designed for the PDF GPT application. Using a modular Terraform approach, it creates all necessary components, from networking to storage to observability, providing a complete platform for your containerized applications.
+This repository automates the deployment of a production-ready Kubernetes infrastructure on AWS. Using a modular Terraform approach, it creates all necessary components, from networking to storage to observability, providing a complete platform for your containerized applications.
 
 ## Features
 
@@ -43,7 +43,7 @@ This repository automates the deployment of a production-ready Kubernetes infras
 ## Repository Structure
 
 ```
-PDF-gpt-infra/
+AWS-EKS-Terraform/
 ├── modules/                # Modular Terraform components
 │   ├── add-ons/            # Kubernetes add-ons (Prometheus, Grafana, NGINX Ingress)
 │   ├── efs/                # EFS storage configuration and CSI driver
@@ -69,8 +69,8 @@ PDF-gpt-infra/
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/JoeUzo/PDF-gpt-infra.git
-   cd PDF-gpt-infra
+   git clone https://github.com/JoeUzo/AWS-EKS-Terraform.git
+   cd AWS-EKS-Terraform
    ```
 
 2. **Configure AWS Credentials**:
@@ -103,7 +103,7 @@ Key variables you'll need to configure:
 | `vpc_cidr` | CIDR block for the VPC | `"10.0.0.0/16"` |
 | `vpc_public_subnets` | List of public subnet CIDRs | `["10.0.1.0/24", "10.0.2.0/24"]` |
 | `vpc_private_subnets` | List of private subnet CIDRs | `["10.0.3.0/24", "10.0.4.0/24"]` |
-| `eks_cluster_name` | Name of the EKS cluster | `"pdf-gpt-eks"` |
+| `eks_cluster_name` | Name of the EKS cluster | `"my-eks-cluster"` |
 | `node_groups_instance_types` | EC2 instance types for nodes | `["t3.medium"]` |
 | `grafana_username` | Grafana admin username | `"admin"` |
 | `grafana_password` | Grafana admin password | `"StrongPassword123!"` |
@@ -120,11 +120,11 @@ The `app_ingress` variable is a map where each key is a subdomain and each value
 Example:
 ```hcl
 app_ingress = {
-  "pdf" = ["pdf-gpt-service", 5000, "/"]
+  "app" = ["my-app-service", 8080, "/"]
 }
 ```
 
-This creates an ingress at `pdf.example.com` pointing to the `pdf-gpt-service` on port 5000.
+This creates an ingress at `app.example.com` pointing to the `my-app-service` on port 8080.
 
 ## Deployment
 
@@ -151,9 +151,9 @@ This creates an ingress at `pdf.example.com` pointing to the `pdf-gpt-service` o
 
 ## Accessing Your Applications
 
-After deployment, your applications will be accessible at:
+After deployment, your applications will be accessible at the configured domain names, for example:
 
-- PDF GPT Application: `https://pdf.yourdomain.com`
+- Your Application: `https://app.yourdomain.com`
 - Grafana Dashboard: `https://grafana.yourdomain.com` (use the credentials from terraform.tfvars)
 
 ## Monitoring and Management
@@ -177,7 +177,7 @@ To create a persistent volume claim for your application:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: pdf-data
+  name: app-data
   namespace: app
 spec:
   accessModes:
