@@ -18,12 +18,6 @@ resource "kubernetes_namespace" "app" {
   }
 }
 
-resource "helm_repository" "bitnami" {
-  name = "bitnami"
-  url  = "https://charts.bitnami.com/bitnami"
-}
-
-
 # Prometheus
 resource "helm_release" "prometheus" {
   name       = "prometheus"
