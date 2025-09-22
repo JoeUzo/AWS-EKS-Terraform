@@ -13,20 +13,20 @@ variable "domain" {
     type = string
 }
 
-variable "cluster_ca" {
-    description = "The CA certificate of the EKS cluster."
-    type = string
-}
+# variable "cluster_ca" {
+#     description = "The CA certificate of the EKS cluster."
+#     type = string
+# }
 
-variable "cluster_token" {
-    description = "The token of the EKS cluster."
-    type = string
-}
+# variable "cluster_token" {
+#     description = "The token of the EKS cluster."
+#     type = string
+# }
 
-variable "cluster_endpoint" {
-    description = "The endpoint of the EKS cluster."
-    type = string
-}
+# variable "cluster_endpoint" {
+#     description = "The endpoint of the EKS cluster."
+#     type = string
+# }
 
 variable "grafana_username" {
     description = "The username for the Grafana user."

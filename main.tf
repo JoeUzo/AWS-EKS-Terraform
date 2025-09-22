@@ -1,3 +1,32 @@
+# Fetch cluster details after EKS exists
+# Keep your existing data sources
+data "aws_eks_cluster" "cluster" {
+  name       = var.eks_cluster_name
+  depends_on = [module.eks_module]
+}
+
+data "aws_eks_cluster_auth" "cluster" {
+  name       = var.eks_cluster_name
+  depends_on = [module.eks_module]
+}
+
+# Alias providers as "eks"
+provider "kubernetes" {
+  alias                  = "eks"
+  host                   = data.aws_eks_cluster.cluster.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
+  token                  = data.aws_eks_cluster_auth.cluster.token
+}
+
+provider "helm" {
+  alias = "eks"
+  kubernetes {
+    host                   = data.aws_eks_cluster.cluster.endpoint
+    cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
+    token                  = data.aws_eks_cluster_auth.cluster.token
+  }
+}
+
 module "vpc_module" {
   source = "./modules/vpc"
   #   vpc_region = var.my_region
@@ -33,6 +62,11 @@ module "efs_module" {
   private_subnets = module.vpc_module.private_subnets
   vpc_cidr_block  = var.vpc_cidr
   oidc_provider   = module.eks_module.oidc_provider
+
+  providers = {
+    kubernetes = kubernetes.eks
+    helm       = helm.eks
+  }
 }
 
 module "add_ons_module" {
@@ -40,36 +74,17 @@ module "add_ons_module" {
   cluster_name         = var.eks_cluster_name
   grafana_password     = var.grafana_password
   domain               = var.domain
-  cluster_ca           = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
-  cluster_token        = data.aws_eks_cluster_auth.cluster.token
-  cluster_endpoint     = data.aws_eks_cluster.cluster.endpoint
   grafana_username     = var.grafana_username
   eks_cluster_name     = var.eks_cluster_name
   create_app_ingresses = true
   ingress_map          = var.app_ingress
-}
+  depends_on           = [module.eks_module]
 
-
-data "aws_eks_cluster" "cluster" {
-  name       = var.eks_cluster_name
-  depends_on = [module.eks_module]
-}
-
-data "aws_eks_cluster_auth" "cluster" {
-  name       = var.eks_cluster_name
-  depends_on = [module.eks_module]
-}
-
-provider "kubernetes" {
-  host                   = data.aws_eks_cluster.cluster.endpoint
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
-  token                  = data.aws_eks_cluster_auth.cluster.token
-}
-
-provider "helm" {
-  kubernetes {
-    host                   = data.aws_eks_cluster.cluster.endpoint
-    cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
-    token                  = data.aws_eks_cluster_auth.cluster.token
+  providers = {
+    kubernetes = kubernetes.eks
+    helm       = helm.eks
   }
 }
+
+
+
