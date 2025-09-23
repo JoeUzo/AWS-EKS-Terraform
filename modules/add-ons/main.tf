@@ -26,15 +26,16 @@ resource "helm_release" "prometheus" {
   chart      = "prometheus"
   version    = "27.5.1"
 
-  set {
-    name  = "server.persistentVolume.storageClass"
-    value = "gp2"
-  }
-  
-  set {
-    name  = "alertmanager.persistence.storageClass"
-    value = "gp2"
-  }
+  set = [
+    {
+      name  = "server.persistentVolume.storageClass"
+      value = "gp2"
+    },
+    {
+      name  = "alertmanager.persistence.storageClass"
+      value = "gp2"
+    }
+  ]
 }
 
 
@@ -46,14 +47,16 @@ resource "helm_release" "grafana" {
   chart = "grafana"
   version = "8.10.3"
 
-  set {
-    name = "adminUser"
-    value = var.grafana_username
-  }
-  set {
-    name = "adminPassword"
-    value = var.grafana_password
-  }
+  set = [ 
+    {
+      name = "adminUser"
+      value = var.grafana_username
+    },
+    {
+      name = "adminPassword"
+      value = var.grafana_password
+    }
+  ]
 }
 
 # Ingress for nginx
@@ -64,26 +67,27 @@ resource "helm_release" "nginx_ingress" {
   chart      = "ingress-nginx"
   version    = "4.12.0"
 
-  set {
-    name  = "controller.service.annotations.service\\.beta\\.kubernetes\\.io/aws-load-balancer-type"
-    value = "nlb"
-  }
+  set = [
+    {
+      name  = "controller.service.annotations.service\\.beta\\.kubernetes\\.io/aws-load-balancer-type"
+      value = "nlb"
+    },
   
-  set {
-    name  = "controller.service.annotations.service\\.beta\\.kubernetes\\.io/aws-load-balancer-scheme"
-    value = "internet-facing"
-  }
-  
-  set {
-    name  = "controller.admissionWebhooks.enabled"
-    value = "false"
-  }
+    {
+      name  = "controller.service.annotations.service\\.beta\\.kubernetes\\.io/aws-load-balancer-scheme"
+      value = "internet-facing"
+    },
+    {
+      name  = "controller.admissionWebhooks.enabled"
+      value = "false"
+    },
 
-  # Add tags to the AWS Load Balancer
-  set {
-    name  = "controller.service.annotations.service\\.beta\\.kubernetes\\.io/aws-load-balancer-additional-resource-tags"
-    value = local.lb_additional_tags_string
-  }
+    # Add tags to the AWS Load Balancer
+    {
+      name  = "controller.service.annotations.service\\.beta\\.kubernetes\\.io/aws-load-balancer-additional-resource-tags"
+      value = local.lb_additional_tags_string
+    }
+  ]
 }
 
 

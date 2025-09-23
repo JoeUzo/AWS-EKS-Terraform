@@ -1,5 +1,5 @@
 terraform {
-  required_version = "~> 1.9"
+  required_version = "~> 1.13"
 
   required_providers {
     aws = {
@@ -9,19 +9,19 @@ terraform {
 
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "~> 2.36"
+      version = "~> 2.38"
     }
 
     helm = {
       source  = "hashicorp/helm"
-      version = "~> 2.17"
+      version = "~> 3.0"
     }
   }
 
   backend "s3" {
     bucket         = "placeholder-bucket"
     key            = "placeholder-key"
-    dynamodb_table = "placeholder-lock"
+    use_lockfile   =  "true"
     region         = "us-east-2"
   }
 

@@ -31,3 +31,7 @@ terraform.rc
 export.sh
 output.json
 auth.yaml
+
+.env
+*tgz
+
