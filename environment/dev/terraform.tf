@@ -18,12 +18,7 @@ terraform {
     }
   }
 
-  backend "s3" {
-    bucket         = "placeholder-bucket"
-    key            = "placeholder-key"
-    use_lockfile   =  "true"
-    region         = "us-east-2"
-  }
+  backend "s3" {}
 
 }
 

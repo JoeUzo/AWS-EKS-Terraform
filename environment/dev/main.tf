@@ -1,36 +1,5 @@
-# Fetch cluster details after EKS exists
-# Keep your existing data sources
-data "aws_eks_cluster" "cluster" {
-  name       = var.eks_cluster_name
-  depends_on = [module.eks_module]
-}
-
-data "aws_eks_cluster_auth" "cluster" {
-  name       = var.eks_cluster_name
-  depends_on = [module.eks_module]
-}
-
-# Alias providers as "eks"
-provider "kubernetes" {
-  alias                  = "eks"
-  host                   = data.aws_eks_cluster.cluster.endpoint
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
-  token                  = data.aws_eks_cluster_auth.cluster.token
-}
-
-provider "helm" {
-  alias = "eks"
-  kubernetes = {
-    host                   = data.aws_eks_cluster.cluster.endpoint
-    cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
-    token                  = data.aws_eks_cluster_auth.cluster.token
-  }
-  repository_cache  = "${path.root}/.helmcache"
-  repository_config_path = "${path.root}/.helmrepo/repositories.yaml"
-}
-
 module "vpc_module" {
-  source = "./modules/vpc"
+  source = "../../modules/vpc"
   #   vpc_region = var.my_region
   vpc_owner                = var.vpc_owner
   vpc_use                  = var.vpc_use
@@ -46,7 +15,7 @@ module "vpc_module" {
 
 
 module "eks_module" {
-  source = "./modules/eks-cluster"
+  source = "../../modules/eks-cluster"
 
   vpc_id                     = module.vpc_module.vpc_id
   cluster_name               = var.eks_cluster_name
@@ -56,8 +25,9 @@ module "eks_module" {
   desired_size               = var.desired_size
 }
 
+
 module "efs_module" {
-  source          = "./modules/efs"
+  source          = "../../modules/efs"
   aws_region      = var.my_region
   cluster_name    = var.eks_cluster_name
   vpc_id          = module.vpc_module.vpc_id
@@ -71,8 +41,9 @@ module "efs_module" {
   }
 }
 
+
 module "add_ons_module" {
-  source               = "./modules/add-ons"
+  source               = "../../modules/add-ons"
   cluster_name         = var.eks_cluster_name
   grafana_password     = var.grafana_password
   domain               = var.domain
@@ -89,4 +60,33 @@ module "add_ons_module" {
 }
 
 
+data "aws_eks_cluster" "cluster" {
+  name       = var.eks_cluster_name
+  depends_on = [module.eks_module]
+}
 
+
+data "aws_eks_cluster_auth" "cluster" {
+  name       = var.eks_cluster_name
+  depends_on = [module.eks_module]
+}
+
+
+provider "kubernetes" {
+  alias                  = "eks"
+  host                   = data.aws_eks_cluster.cluster.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
+  token                  = data.aws_eks_cluster_auth.cluster.token
+}
+
+
+provider "helm" {
+  alias = "eks"
+  kubernetes = {
+    host                   = data.aws_eks_cluster.cluster.endpoint
+    cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
+    token                  = data.aws_eks_cluster_auth.cluster.token
+  }
+  repository_cache  = "${path.root}/.helmcache"
+  repository_config_path = "${path.root}/.helmrepo/repositories.yaml"
+}
