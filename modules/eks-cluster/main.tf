@@ -3,7 +3,7 @@ module "eks" {
   version = "~> 20.31"
 
   cluster_name = var.cluster_name
-  cluster_version = "1.32"
+  cluster_version = "1.34"
 
   cluster_endpoint_public_access = true
 
@@ -31,7 +31,8 @@ module "eks" {
     iam_role_additional_policies = {
       AmazonEBSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
     }
-    ami_type = "AL2_x86_64"
+    ami_type = var.ami_type
+    use_latest_ami_release_version = true
     instance_types = var.node_groups_instance_types
   }
 

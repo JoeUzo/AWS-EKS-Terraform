@@ -30,3 +30,9 @@ variable "desired_size" {
   type = number
   default = 2
 }
+
+variable "ami_type" {
+  description = "AMI type for the EKS managed node groups"
+  type = string
+  default = "AL2023_x86_64_STANDARD"
+}
